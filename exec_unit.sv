@@ -65,7 +65,7 @@ module exec_unit #(parameter  PC_INIT = `PC_INIT )(
     output logic                          mem_bubble_o,
 
     output  logic                          is_mem_op_o,
-    output  logic [1:0]                    mem_instruct_type_o,
+    output  logic [5:0]                    mem_instruct_type_o,
     output  logic [`ILEN-1:0]              mem_instruct_o,
     output  logic [`XLEN-1:0]              mem_pc_o,
 

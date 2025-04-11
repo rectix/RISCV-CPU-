@@ -77,7 +77,7 @@ logic [`XLEN-1:0] immI, immB, immJ;
 logic [`XLEN-1:0] pc_inc, pc_plus_immB, pc_plus_immJ;
 logic [`XLEN-1:0] rs0_plus_immI;
 
-logic             is_jal_type, is_jalr_type;
+logic              is_jalr_type;
 
 
 logic             is_rs0_eq_rs1, is_rs0_lt_rs1;
@@ -114,9 +114,9 @@ always_ff @(posedge clock_i or negedge nreset_i) begin
 // BRANCH PC CALCULATION
 //===========================================================================
 
-assign immB        = {20{immB_i[11]}, immB_i[10:0], 1'b0};
-assign immI        = {20{immI_i[11]}, immI_i};
-assign immJ        = {12{immJ_i[19]}, immJ_i[18:0], 1'b0};
+assign immB        = {{20{immB_i[11]}}, immB_i[10:0], 1'b0};
+assign immI        = {{20{immI_i[11]}}, immI_i};
+assign immJ        = {{12{immJ_i[19]}}, immJ_i[18:0], 1'b0};
 
 assign pc_inc         = pc_i + `XLEN'(4);
 assign pc_plus_immB  = pc_inc + immB;
@@ -126,11 +126,11 @@ assign rs0_plus_immI = reg_file_rs0_i + immI;
 assign is_rs0_eq_rs1 = (reg_file_rs0_i == reg_file_rs1_i);
 assign is_rs0_lt_rs1 = (reg_file_rs0_i < reg_file_rs1_i);
 assign is_signed_rs0_lt_rs1 = (signed'(reg_file_rs0_i) < signed'(reg_file_rs1_i));
-assign is_branch_taken_diff = branch_taken_i ^ branch_taken;
+assign is_branch_taken_diff = (branch_taken_i ^ branch_taken);
 
 
-assign is_jal_type = (opcode_i == `OP_JALR);
-assign bubble  = (is_jal_type || is_jalr_type) ? bubble_i : 1'b1;
+assign is_jalr_type = ((opcode_i) == (OP_JALR));
+assign bubble  = (is_J_type_i || is_jalr_type) ? bubble_i : 1'b1;
  //JAL & JALR need to propagate and do a writeback
 
 //===========================================================================
@@ -138,57 +138,58 @@ assign bubble  = (is_jal_type || is_jalr_type) ? bubble_i : 1'b1;
 //===========================================================================
 
 always_comb begin
-if(is_jalr_type && !bubble_i) begin 
-    branch_taken = 1'b1;
-    branch_pc = rs0_plus_immI & {`XLEN-1{1'b1}, 1'b0};
-    flush = 1'b1;
-
-end else if(is_J_type_i && !bubble_i) begin 
+if(is_J_type_i && !bubble_i) begin 
     branch_taken = 1'b1;
     branch_pc = pc_plus_immJ ;
     flush = 1'b0;
+end else if(is_jalr_type && !bubble_i) begin 
+    branch_taken = 1'b1;
+    branch_pc = rs0_plus_immI & {{`XLEN-1{1'b1}}, 1'b0};
+    flush = 1'b1;
+
+
 
 end else if(is_B_type_i && !bubble_i) begin
     case (func3_i)
         F3_BEQ: begin
             branch_taken = is_rs0_eq_rs1;
             branch_pc    = pc_plus_immB;
-            flush        = is_branch_taken_diff
+            flush        = is_branch_taken_diff;
         end
         F3_BNE: begin
             branch_taken = ~is_rs0_eq_rs1;
             branch_pc    = pc_plus_immB;
-            flush        = is_branch_taken_diff
+            flush        = is_branch_taken_diff;
         end
         F3_BLT: begin
             branch_taken = is_signed_rs0_lt_rs1;
             branch_pc    = pc_plus_immB;
-            flush        = is_branch_taken_diff
+            flush        = is_branch_taken_diff;
         end
         F3_BGE: begin
             branch_taken = ~is_signed_rs0_lt_rs1;
             branch_pc    = pc_plus_immB;
-            flush        = is_branch_taken_diff
+            flush        = is_branch_taken_diff;
         end
         F3_BLTU: begin
             branch_taken = is_rs0_lt_rs1;
             branch_pc    = pc_plus_immB;
-            flush        = is_branch_taken_diff
+            flush        = is_branch_taken_diff;
         end
         F3_BGEU: begin
             branch_taken = ~is_rs0_lt_rs1;
             branch_pc    = pc_plus_immB;
-            flush        = is_branch_taken_diff
+            flush        = is_branch_taken_diff;
         end
         default: begin
             branch_taken = 1'b0;
             branch_pc    = pc_inc;
-            flush        = is_branch_taken_diff
+            flush        = is_branch_taken_diff;
         end
     endcase
 
 end else begin
-    bubble = 1'b0;
+    flush = 1'b0;
     branch_taken = 1'b0;
     branch_pc = pc_inc;
 end 

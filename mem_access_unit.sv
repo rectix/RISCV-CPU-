@@ -35,7 +35,7 @@ module mem_acces_unit #(
     output logic [`XLEN-1:0]     dmem_wdata_o,
     output logic [1:0]           dmem_size_o,
     output logic                 dmem_req_o,
-    output logic                 wen_o,
+    output logic                 dmem_wen_o,
 
     output logic                 dmem_flush_o,
     input  logic                 dmem_stall_i,
@@ -43,7 +43,7 @@ module mem_acces_unit #(
     //WRITE BACK
 
 
-    output logic                 wb_instruct_type_o,
+    output logic [5:0]           wb_instruct_type_o,
     output logic [`XLEN-1:0]     wb_instruct_o,
     output logic [`XLEN-1:0]     wb_pc_o,
     output logic [`XLEN-1:0]     wb_mem_addr_o,
@@ -155,7 +155,7 @@ assign dmem_addr_o  = mem_addr_rg;
 assign dmem_wdata_o = xu_mem_data_i;        
 assign dmem_size_o  = xu_mem_size_i;       
 assign dmem_req_o   = (is_mem_op && !xu_bubble_i);            
-assign wen_o        = !xu_bubble_i && xu_is_mem_op_i && (xu_mem_cmd_i == STORE); 
+assign dmem_wen_o   = !xu_bubble_i && xu_is_mem_op_i && (xu_mem_cmd_i == STORE); 
 assign dmem_flush_o = 1'b0; 
 
 

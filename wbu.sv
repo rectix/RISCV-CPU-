@@ -47,7 +47,7 @@ module wbu#(parameter PC_INIT = `PC_INIT)(
     output logic [`XLEN-1:0]     wbu_rdt_data_o,
 
     output logic                 wbu_bubble_o,
-    input logic                 wbu_stall_i,
+    input  logic                 wbu_stall_i,
 
     //DATA MEMORY | CACHE
     

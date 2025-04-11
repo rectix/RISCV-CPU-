@@ -35,12 +35,11 @@ module fetch #(
     input  logic              clock_i,
     input  logic              nreset_i,
     
-    // Request interface  
+
     output logic [`XLEN-1:0]  fu_pc_o,
     output logic              fu_pc_valid_o,
     input  logic              mem_cpu_stall_i,
-    
-    // Response interface  
+ 
     output logic              mem_stall_o, 
     output logic              mem_flush_o,
     output logic              cpu_stall_i,
@@ -48,7 +47,7 @@ module fetch #(
     input  logic [`ILEN:0]    mem_pck_i,         // packet = instruction + pc
     input  logic [`XLEN:0]    mem_pck_pc_i,  
     
-    // Decode interface  
+ 
     input  logic              du_stall_i,  // inverse of ready 
     input  logic              du_flush_i,  // inverse of ready 
     output logic              fu_branch_taken_o,
@@ -57,7 +56,7 @@ module fetch #(
     output logic              du_bubble_o,  // inverse of valid
     output logic              du_pc_o,     
     
-    //exec unit signals 
+
     input  logic              xu_branch_flush_i,
     input  logic [`XLEN-1:0]  xu_branch_pc_i  
 );
